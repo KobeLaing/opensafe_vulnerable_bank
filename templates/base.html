@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}OpenSafe Bank{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+{% if session.user_id %}
+<nav class="navbar">
+  <div class="nav-brand">
+    <span class="bank-icon">🏦</span>
+    <span class="bank-name">OpenSafe Bank</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="{{ url_for('dashboard') }}"{% if request.endpoint == 'dashboard' %} class="active"{% endif %}>Dashboard</a></li>
+    <li><a href="{{ url_for('deposit') }}"{% if request.endpoint == 'deposit' %} class="active"{% endif %}>Deposit</a></li>
+    <li><a href="{{ url_for('transfer') }}"{% if request.endpoint == 'transfer' %} class="active"{% endif %}>Transfer</a></li>
+    <li><a href="{{ url_for('transactions') }}"{% if request.endpoint == 'transactions' %} class="active"{% endif %}>History</a></li>
+    <li><a href="{{ url_for('profile') }}"{% if request.endpoint == 'profile' %} class="active"{% endif %}>Profile</a></li>
+    <li><a href="{{ url_for('logout') }}" class="logout-link">Logout</a></li>
+  </ul>
+</nav>
+{% endif %}
+
+<main class="container">
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <p>OpenSafe Bank &mdash; <em>For educational and CTF use only. Do not use in production.</em></p>
+</footer>
+
+</body>
+</html>

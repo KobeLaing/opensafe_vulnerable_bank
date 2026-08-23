@@ -1,0 +1,41 @@
+2026-07-31 15:28:57,090 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.83.65.143:5000
+2026-07-31 15:28:57,090 [INFO] [33mPress CTRL+C to quit[0m
+2026-07-31 15:28:57,216 [INFO]  * Restarting with stat
+2026-07-31 15:28:58,329 [WARNING]  * Debugger is active!
+2026-07-31 15:28:58,338 [INFO]  * Debugger PIN: 117-360-697
+2026-07-31 15:29:43,160 [INFO] 127.0.0.1 - - [31/Jul/2026 15:29:43] "GET / HTTP/1.1" 200 -
+2026-07-31 15:29:43,573 [INFO] 127.0.0.1 - - [31/Jul/2026 15:29:43] "GET /static/style.css HTTP/1.1" 200 -
+2026-07-31 15:29:43,652 [INFO] 127.0.0.1 - - [31/Jul/2026 15:29:43] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-07-31 15:29:58,702 [INFO] 127.0.0.1 - - [31/Jul/2026 15:29:58] "GET /login HTTP/1.1" 200 -
+2026-07-31 15:29:58,726 [INFO] 127.0.0.1 - - [31/Jul/2026 15:29:58] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-31 15:30:15,815 [INFO] LOGIN ATTEMPT | username=bob | password=letmein
+2026-07-31 15:30:15,816 [DEBUG] Executing SQL: SELECT * FROM users WHERE username = 'bob' AND password = 'letmein'
+2026-07-31 15:30:15,817 [INFO] LOGIN SUCCESS | username=bob | password=letmein | balance=1250.75
+2026-07-31 15:30:15,817 [INFO] 127.0.0.1 - - [31/Jul/2026 15:30:15] "[32mPOST /login HTTP/1.1[0m" 302 -
+2026-07-31 15:30:15,841 [INFO] 127.0.0.1 - - [31/Jul/2026 15:30:15] "GET /dashboard HTTP/1.1" 200 -
+2026-07-31 15:30:15,893 [INFO] 127.0.0.1 - - [31/Jul/2026 15:30:15] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-07-31 15:31:10,962 [INFO] 127.0.0.1 - - [31/Jul/2026 15:31:10] "[32mGET /logout HTTP/1.1[0m" 302 -
+2026-07-31 15:31:10,967 [INFO] 127.0.0.1 - - [31/Jul/2026 15:31:10] "GET / HTTP/1.1" 200 -
+2026-07-31 15:31:10,997 [INFO] 127.0.0.1 - - [31/Jul/2026 15:31:10] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-08-21 16:37:54,785 [INFO] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://10.13.66.68:5000
+2026-08-21 16:37:54,790 [INFO] [33mPress CTRL+C to quit[0m
+2026-08-21 16:37:54,793 [INFO]  * Restarting with stat
+2026-08-21 16:37:55,313 [WARNING]  * Debugger is active!
+2026-08-21 16:37:55,318 [INFO]  * Debugger PIN: 117-360-697
+2026-08-21 16:38:28,615 [INFO] 10.13.66.68 - - [21/Aug/2026 16:38:28] "GET / HTTP/1.1" 200 -
+2026-08-21 16:38:28,944 [INFO] 10.13.66.68 - - [21/Aug/2026 16:38:28] "GET /static/style.css HTTP/1.1" 200 -
+2026-08-21 16:38:29,005 [INFO] 10.13.66.68 - - [21/Aug/2026 16:38:29] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-08-21 16:38:37,730 [INFO] 10.13.66.68 - - [21/Aug/2026 16:38:37] "GET /login HTTP/1.1" 200 -
+2026-08-21 16:38:37,752 [INFO] 10.13.66.68 - - [21/Aug/2026 16:38:37] "[36mGET /static/style.css HTTP/1.1[0m" 304 -
+2026-08-21 16:38:56,354 [INFO] LOGIN ATTEMPT | username=kobe@opensafe.com | password=password123
+2026-08-21 16:38:56,355 [DEBUG] Executing SQL: SELECT * FROM users WHERE username = 'kobe@opensafe.com' AND password = 'password123'
+2026-08-21 16:38:56,356 [INFO] LOGIN SUCCESS | username=kobe@opensafe.com | password=password123 | balance=5000.0
+2026-08-21 16:38:56,357 [INFO] 10.13.66.68 - - [21/Aug/2026 16:38:56] "[32mPOST /login HTTP/1.1[0m" 302 -
+2026-08-21 16:38:56,375 [INFO] 10.13.66.68 - - [21/Aug/2026 16:38:56] "GET /dashboard HTTP/1.1" 200 -
+2026-08-21 16:38:56,408 [INFO] 10.13.66.68 - - [21/Aug/2026 16:38:56] "[36mGET /static/style.css HTTP/1.1[0m" 304 -

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Welcome — OpenSafe Bank{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <div class="hero-card">
+    <div class="hero-logo">🏦</div>
+    <h1 class="hero-title">OpenSafe Bank</h1>
+    <p class="hero-subtitle">Vulnerable banking app created for cybersecurity education</p>
+    <div class="hero-actions">
+      <a href="{{ url_for('login') }}" class="btn btn-primary">Log In</a>
+      <a href="{{ url_for('register') }}" class="btn btn-secondary">Create Account</a>
+    </div>
+    <div class="demo-credentials">
+      <h3>Demo Accounts</h3>
+      <table class="cred-table">
+        <thead>
+          <tr><th>Username</th><th>Password</th><th>Balance</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>kobe@opensafe.com</td><td>password123</td><td>$5,000.00</td></tr>
+          <tr><td>kira@opensafe.com</td><td>letmein</td><td>$1,250.75</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

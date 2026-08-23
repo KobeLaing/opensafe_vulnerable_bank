@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — VulnBank{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Welcome back, {{ user['display_name'] }}</h1>
+  <p class="page-subtitle">Here's your financial summary.</p>
+</div>
+
+<div class="stat-cards">
+  <div class="stat-card stat-card--primary">
+    <div class="stat-label">Savings Balance</div>
+    <div class="stat-value">${{ "%.2f"|format(user['balance']) }}</div>
+    <div class="stat-meta">Account #{{ "%06d"|format(user['id']) }}</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-label">Username</div>
+    <div class="stat-value-sm">@{{ user['username'] }}</div>
+    <div class="stat-meta">{{ user['email'] or 'No email set' }}</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-header">
+    <h2>Recent Transactions</h2>
+    <a href="{{ url_for('transactions') }}" class="link-more">View all &rarr;</a>
+  </div>
+
+  {% if transactions %}
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Date &amp; Time</th>
+          <th>Type</th>
+          <th>Amount</th>
+          <th>Memo</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for txn in transactions %}
+        <tr>
+          <td class="td-mono">{{ txn['timestamp'] }}</td>
+          <td>
+            <span class="badge badge--{{ 'green' if txn['type'] in ('deposit','transfer_in') else 'red' }}">
+              {{ txn['type'].replace('_', ' ').title() }}
+            </span>
+          </td>
+          <td class="td-amount {{ 'amount-pos' if txn['type'] in ('deposit','transfer_in') else 'amount-neg' }}">
+            {{ '+' if txn['type'] in ('deposit','transfer_in') else '-' }}${{ "%.2f"|format(txn['amount']) }}
+          </td>
+          <td>{{ txn['memo'] or '—' }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty-state">No transactions yet. <a href="{{ url_for('deposit') }}">Make a deposit</a> to get started.</p>
+  {% endif %}
+</div>
+
+<div class="quick-actions">
+  <h2>Quick Actions</h2>
+  <div class="action-grid">
+    <a href="{{ url_for('deposit') }}" class="action-card">
+      <div class="action-icon">💳</div>
+      <div class="action-label">Deposit Funds</div>
+    </a>
+    <a href="{{ url_for('transfer') }}" class="action-card">
+      <div class="action-icon">↗️</div>
+      <div class="action-label">Transfer Money</div>
+    </a>
+    <a href="{{ url_for('transactions') }}" class="action-card">
+      <div class="action-icon">📋</div>
+      <div class="action-label">Full History</div>
+    </a>
+    <a href="{{ url_for('profile') }}" class="action-card">
+      <div class="action-icon">👤</div>
+      <div class="action-label">Edit Profile</div>
+    </a>
+  </div>
+</div>
+{% endblock %}

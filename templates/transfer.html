@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Transfer — OpenSafe Bank{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Transfer Funds</h1>
+  <p class="page-subtitle">Send money to another OpenSafe Bank user by username.</p>
+</div>
+
+{% if message %}
+<div class="alert alert-success">{{ message }}</div>
+{% endif %}
+{% if error %}
+<div class="alert alert-error">{{ error }}</div>
+{% endif %}
+
+<div class="form-card">
+  <form method="POST" action="{{ url_for('transfer') }}">
+
+    <div class="form-group">
+      <label for="recipient">Recipient Username</label>
+      <input type="text" id="recipient" name="recipient" required
+             placeholder="e.g. bob" autocomplete="off" />
+    </div>
+
+    <div class="form-group">
+      <label for="amount">Amount ($)</label>
+      <input type="number" id="amount" name="amount" min="0.01" step="0.01"
+             required placeholder="0.00" />
+    </div>
+
+    <div class="form-group">
+      <label for="memo">
+        Memo / Notes
+        <span class="vuln-tag" title="VULNERABILITY: Stored XSS — this field is stored unsanitized and rendered as raw HTML">⚠ XSS</span>
+      </label>
+      <input type="text" id="memo" name="memo"
+             placeholder="e.g. rent, lunch, splitting the bill…" />
+      <span class="field-hint">Rendered as raw HTML in transaction history for both sender and recipient.</span>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-full">Send Transfer</button>
+  </form>
+
+  <div class="vuln-notice">
+    <strong>Educational Note (Vuln 2 &amp; 4):</strong> Sender balance, recipient, amount, and memo are written to <code>bank.log</code> in plaintext. The memo is stored unsanitized — try: <code>&lt;img src=x onerror="alert(document.cookie)"&gt;</code>
+  </div>
+</div>
+{% endblock %}
