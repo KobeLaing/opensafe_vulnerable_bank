@@ -6,7 +6,7 @@
   <title>{% block title %}OpenSafe Bank{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
-<body>
+<body class="{% block body_class %}{% endblock %}">
 
 {% if session.user_id %}
 <nav class="navbar">

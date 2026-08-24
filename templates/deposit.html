@@ -16,27 +16,36 @@
 
 <div class="form-card">
   <form method="POST" action="{{ url_for('deposit') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
-    <fieldset class="fieldset">
-      <legend>Card Details</legend>
-      <div class="form-group">
-        <label for="card_number">Card Number</label>
-        <input type="text" id="card_number" name="card_number"
-               maxlength="19" placeholder="1234 5678 9012 3456" autocomplete="off" />
-      </div>
-      <div class="form-row">
+    <!--
+      VULNERABILITY: Raw card data collected without purpose or PCI-compliant handling — this
+      fieldset used to collect a full card number and CVV that the server never actually needed
+      (see app.py's deposit() route, which never processed them).
+      <fieldset class="fieldset">
+        <legend>Card Details</legend>
         <div class="form-group">
-          <label for="card_expiry">Expiry (MM/YY)</label>
-          <input type="text" id="card_expiry" name="card_expiry"
-                 maxlength="5" placeholder="MM/YY" autocomplete="off" />
+          <label for="card_number">Card Number</label>
+          <input type="text" id="card_number" name="card_number"
+                 maxlength="19" placeholder="1234 5678 9012 3456" autocomplete="off" />
         </div>
-        <div class="form-group">
-          <label for="card_cvv">CVV</label>
-          <input type="text" id="card_cvv" name="card_cvv"
-                 maxlength="4" placeholder="123" autocomplete="off" />
+        <div class="form-row">
+          <div class="form-group">
+            <label for="card_expiry">Expiry (MM/YY)</label>
+            <input type="text" id="card_expiry" name="card_expiry"
+                   maxlength="5" placeholder="MM/YY" autocomplete="off" />
+          </div>
+          <div class="form-group">
+            <label for="card_cvv">CVV</label>
+            <input type="text" id="card_cvv" name="card_cvv"
+                   maxlength="4" placeholder="123" autocomplete="off" />
+          </div>
         </div>
-      </div>
-    </fieldset>
+      </fieldset>
+      REMEDIATED: Raw card data collection — removed entirely (data minimization). A real deployment
+      would collect card details via a PCI-compliant processor's hosted fields instead of this app's
+      own form/server.
+    -->
 
     <fieldset class="fieldset">
       <legend>Transaction Details</legend>
@@ -46,20 +55,25 @@
                required placeholder="0.00" />
       </div>
       <div class="form-group">
-        <label for="memo">
-          Memo / Notes
-          <span class="vuln-tag" title="VULNERABILITY: Stored XSS — this field is stored unsanitized and rendered as raw HTML">⚠ XSS</span>
-        </label>
-        <input type="text" id="memo" name="memo" placeholder="e.g. paycheck, birthday money…" />
-        <span class="field-hint">This note will appear in your transaction history rendered as raw HTML.</span>
+        <label for="memo">Memo / Notes</label>
+        <input type="text" id="memo" name="memo" maxlength="140" placeholder="e.g. paycheck, birthday money…" />
+        <span class="field-hint">Shown in your transaction history. Letters, numbers, and basic punctuation only.</span>
       </div>
     </fieldset>
 
     <button type="submit" class="btn btn-primary btn-full">Deposit</button>
   </form>
 
-  <div class="vuln-notice">
-    <strong>Educational Note (Vuln 2 &amp; 4):</strong> The card number, CVV, and memo are logged in plaintext to <code>bank.log</code>. The memo is stored unsanitized — try: <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code>
-  </div>
+  <details class="details-toggle">
+    <summary>Security notes</summary>
+    <div class="details-panel vuln-notice">
+      <strong>Educational Note:</strong> This form originally collected a full card number and CVV
+      that the server never used, and stored the memo field unsanitized (rendered with Jinja2's
+      <code>|safe</code> filter elsewhere in the app — try <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code>
+      against the vulnerable version). Both are remediated: raw card fields were removed, autoescaping
+      is enforced on render, and this route now also validates memo length/characters server-side. See
+      <code>app.py</code> for the before/after.
+    </div>
+  </details>
 </div>
 {% endblock %}

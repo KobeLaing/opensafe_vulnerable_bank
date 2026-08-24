@@ -11,18 +11,21 @@
       <a href="{{ url_for('login') }}" class="btn btn-primary">Log In</a>
       <a href="{{ url_for('register') }}" class="btn btn-secondary">Create Account</a>
     </div>
-    <div class="demo-credentials">
-      <h3>Demo Accounts</h3>
-      <table class="cred-table">
-        <thead>
-          <tr><th>Username</th><th>Password</th><th>Balance</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>kobe@opensafe.com</td><td>password123</td><td>$5,000.00</td></tr>
-          <tr><td>kira@opensafe.com</td><td>letmein</td><td>$1,250.75</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <details class="details-toggle">
+      <summary>Demo credentials &amp; notes</summary>
+      <div class="details-panel demo-credentials">
+        <h3>Demo Accounts</h3>
+        <table class="cred-table">
+          <thead>
+            <tr><th>Username</th><th>Password</th><th>Balance</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>kobe@opensafe.com</td><td>password123</td><td>$5,000.00</td></tr>
+            <tr><td>kira@opensafe.com</td><td>letmein</td><td>$1,250.75</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
   </div>
 </div>
 {% endblock %}

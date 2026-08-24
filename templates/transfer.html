@@ -16,6 +16,7 @@
 
 <div class="form-card">
   <form method="POST" action="{{ url_for('transfer') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
 
     <div class="form-group">
       <label for="recipient">Recipient Username</label>
@@ -30,20 +31,26 @@
     </div>
 
     <div class="form-group">
-      <label for="memo">
-        Memo / Notes
-        <span class="vuln-tag" title="VULNERABILITY: Stored XSS — this field is stored unsanitized and rendered as raw HTML">⚠ XSS</span>
-      </label>
-      <input type="text" id="memo" name="memo"
+      <label for="memo">Memo / Notes</label>
+      <input type="text" id="memo" name="memo" maxlength="140"
              placeholder="e.g. rent, lunch, splitting the bill…" />
-      <span class="field-hint">Rendered as raw HTML in transaction history for both sender and recipient.</span>
+      <span class="field-hint">Shown in transaction history for both sender and recipient. Letters, numbers, and basic punctuation only.</span>
     </div>
 
     <button type="submit" class="btn btn-primary btn-full">Send Transfer</button>
   </form>
 
-  <div class="vuln-notice">
-    <strong>Educational Note (Vuln 2 &amp; 4):</strong> Sender balance, recipient, amount, and memo are written to <code>bank.log</code> in plaintext. The memo is stored unsanitized — try: <code>&lt;img src=x onerror="alert(document.cookie)"&gt;</code>
-  </div>
+  <details class="details-toggle">
+    <summary>Security notes</summary>
+    <div class="details-panel vuln-notice">
+      <strong>Educational Note:</strong> This form's log line originally included the sender's balance
+      and the memo content in plaintext, and the memo was stored unsanitized and rendered with
+      Jinja2's <code>|safe</code> filter elsewhere in the app (try
+      <code>&lt;img src=x onerror="alert(document.cookie)"&gt;</code> against the vulnerable version).
+      Both are remediated: logs now record only who transferred to whom, autoescaping is enforced on
+      render, and this route validates memo length/characters server-side. See <code>app.py</code>
+      for the before/after.
+    </div>
+  </details>
 </div>
 {% endblock %}

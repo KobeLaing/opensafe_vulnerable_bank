@@ -7,12 +7,18 @@
   <p class="page-subtitle">Complete record of all your deposits and transfers.</p>
 </div>
 
-<div class="vuln-notice vuln-notice--inline">
-  <!-- VULNERABILITY: Stored XSS — memo column is rendered with the |safe filter, bypassing Jinja2's auto-escaping.
-       Any HTML or JavaScript stored in the memo field will execute in the user's browser. -->
-  <strong>Educational Note (Vuln 4 — Stored XSS):</strong>
-  The <em>Memo</em> column below is rendered with Jinja2's <code>|safe</code> filter — raw HTML from the database is injected directly into the page.
-</div>
+<details class="details-toggle">
+  <summary>Security notes</summary>
+  <div class="details-panel vuln-notice">
+    <!-- VULNERABILITY*: Stored XSS — memo column was rendered with the |safe filter, bypassing Jinja2's auto-escaping.
+         Any HTML or JavaScript stored in the memo field would execute in the user's browser. -->
+    <strong>Educational Note (Stored XSS — remediated):</strong>
+    The <em>Memo</em> column below used to be rendered with Jinja2's <code>|safe</code> filter — raw
+    HTML from the database was injected directly into the page. That filter has been removed below so
+    Jinja2's automatic autoescaping applies, and <code>app.py</code> now also validates memo content
+    server-side before it's ever stored.
+  </div>
+</details>
 
 {% if transactions %}
 <div class="table-wrapper">
@@ -39,8 +45,11 @@
         <td class="td-amount {{ 'amount-pos' if txn['type'] in ('deposit','transfer_in') else 'amount-neg' }}">
           {{ '+' if txn['type'] in ('deposit','transfer_in') else '-' }}${{ "%.2f"|format(txn['amount']) }}
         </td>
-        {# VULNERABILITY: Stored XSS — memo rendered as raw HTML using |safe, no sanitization or encoding applied #}
-        <td class="memo-cell">{{ txn['memo'] | safe if txn['memo'] else '—' }}</td>
+        {# VULNERABILITY*: Stored XSS — memo rendered as raw HTML using |safe, no sanitization or encoding applied #}
+        {# {{ txn['memo'] | safe if txn['memo'] else '—' }} #}
+        {# REMEDIATED: Stored XSS — |safe removed; Jinja2's default autoescaping (on for .html
+           templates) now escapes any HTML/JS in the memo so it renders as inert text. #}
+        <td class="memo-cell">{{ txn['memo'] if txn['memo'] else '—' }}</td>
       </tr>
       {% endfor %}
     </tbody>

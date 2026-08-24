@@ -534,6 +534,68 @@ fieldset.fieldset legend {
 }
 
 /* ===================================================
+   Details toggle (demo credentials / educational notes)
+   =================================================== */
+
+.details-toggle {
+  margin-top: 20px;
+}
+
+.details-toggle summary {
+  cursor: pointer;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--gray-400);
+  list-style: none;
+  user-select: none;
+}
+
+.details-toggle summary::-webkit-details-marker { display: none; }
+.details-toggle summary:hover { color: var(--purple); }
+.details-toggle summary::before { content: '▸ '; }
+.details-toggle[open] summary::before { content: '▾ '; }
+
+.details-toggle .details-panel {
+  margin-top: 10px;
+}
+
+/* ===================================================
+   Login page — starfield background
+   =================================================== */
+
+body.login-page {
+  background-color: #050810;
+  background-image:
+    radial-gradient(ellipse 900px 480px at 50% -8%, rgba(124,58,237,.22), transparent 65%),
+    url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27420%27%20height%3D%27420%27%20viewBox%3D%270%200%20420%20420%27%3E%3Ccircle%20cx%3D%27137.4%27%20cy%3D%2766.1%27%20r%3D%271.15%27%20fill%3D%27white%27%20opacity%3D%270.29%27/%3E%3Ccircle%20cx%3D%27224.8%27%20cy%3D%27154.7%27%20r%3D%270.56%27%20fill%3D%27white%27%20opacity%3D%270.55%27/%3E%3Ccircle%20cx%3D%2719.4%27%20cy%3D%27182.7%27%20r%3D%270.57%27%20fill%3D%27white%27%20opacity%3D%270.3%27/%3E%3Ccircle%20cx%3D%27178.9%27%20cy%3D%27344.7%27%20r%3D%270.62%27%20fill%3D%27white%27%20opacity%3D%270.38%27/%3E%3Ccircle%20cx%3D%27262.5%27%20cy%3D%27394.5%27%20r%3D%271.08%27%20fill%3D%27white%27%20opacity%3D%270.49%27/%3E%3Ccircle%20cx%3D%27406.2%27%20cy%3D%2723.2%27%20r%3D%271.36%27%20fill%3D%27white%27%20opacity%3D%270.42%27/%3E%3Ccircle%20cx%3D%2763.4%27%20cy%3D%2752.5%27%20r%3D%270.81%27%20fill%3D%27white%27%20opacity%3D%270.74%27/%3E%3Ccircle%20cx%3D%2778.5%27%20cy%3D%27243.6%27%20r%3D%271.14%27%20fill%3D%27white%27%20opacity%3D%270.47%27/%3E%3Ccircle%20cx%3D%27229.7%27%20cy%3D%2729.9%27%20r%3D%270.56%27%20fill%3D%27white%27%20opacity%3D%270.37%27/%3E%3Ccircle%20cx%3D%27284.3%27%20cy%3D%27180.2%27%20r%3D%270.81%27%20fill%3D%27white%27%20opacity%3D%270.6%27/%3E%3Ccircle%20cx%3D%27190.7%27%20cy%3D%27127.5%27%20r%3D%271.29%27%20fill%3D%27white%27%20opacity%3D%270.67%27/%3E%3Ccircle%20cx%3D%27104.6%27%20cy%3D%27240.7%27%20r%3D%271.03%27%20fill%3D%27white%27%20opacity%3D%270.78%27/%3E%3Ccircle%20cx%3D%27304.5%27%20cy%3D%27122.6%27%20r%3D%271.48%27%20fill%3D%27white%27%20opacity%3D%270.32%27/%3E%3Ccircle%20cx%3D%27176.3%27%20cy%3D%27315.9%27%20r%3D%270.65%27%20fill%3D%27white%27%20opacity%3D%270.54%27/%3E%3Ccircle%20cx%3D%2720.2%27%20cy%3D%27279.3%27%20r%3D%271.26%27%20fill%3D%27white%27%20opacity%3D%270.59%27/%3E%3Ccircle%20cx%3D%27364.7%27%20cy%3D%27133.3%27%20r%3D%271.2%27%20fill%3D%27white%27%20opacity%3D%270.61%27/%3E%3Ccircle%20cx%3D%27242.9%27%20cy%3D%27192.0%27%20r%3D%271.34%27%20fill%3D%27white%27%20opacity%3D%270.82%27/%3E%3Ccircle%20cx%3D%27199.3%27%20cy%3D%27277.6%27%20r%3D%270.56%27%20fill%3D%27white%27%20opacity%3D%270.67%27/%3E%3Ccircle%20cx%3D%27270.6%27%20cy%3D%27413.2%27%20r%3D%271.32%27%20fill%3D%27white%27%20opacity%3D%270.42%27/%3E%3Ccircle%20cx%3D%27162.9%27%20cy%3D%27279.5%27%20r%3D%270.52%27%20fill%3D%27white%27%20opacity%3D%270.53%27/%3E%3Ccircle%20cx%3D%2773.2%27%20cy%3D%2752.2%27%20r%3D%270.56%27%20fill%3D%27white%27%20opacity%3D%270.71%27/%3E%3Ccircle%20cx%3D%2757.3%27%20cy%3D%27106.0%27%20r%3D%270.89%27%20fill%3D%27white%27%20opacity%3D%270.77%27/%3E%3Ccircle%20cx%3D%2737.2%27%20cy%3D%27189.1%27%20r%3D%271.05%27%20fill%3D%27white%27%20opacity%3D%270.78%27/%3E%3Ccircle%20cx%3D%27341.5%27%20cy%3D%27360.0%27%20r%3D%270.78%27%20fill%3D%27white%27%20opacity%3D%270.5%27/%3E%3Ccircle%20cx%3D%27151.8%27%20cy%3D%27368.3%27%20r%3D%271.46%27%20fill%3D%27white%27%20opacity%3D%270.34%27/%3E%3Ccircle%20cx%3D%2776.6%27%20cy%3D%2799.6%27%20r%3D%270.73%27%20fill%3D%27white%27%20opacity%3D%270.54%27/%3E%3Ccircle%20cx%3D%27246.7%27%20cy%3D%27112.3%27%20r%3D%270.5%27%20fill%3D%27white%27%20opacity%3D%270.5%27/%3E%3Ccircle%20cx%3D%27156.1%27%20cy%3D%27237.3%27%20r%3D%271.45%27%20fill%3D%27white%27%20opacity%3D%270.66%27/%3E%3Ccircle%20cx%3D%27216.4%27%20cy%3D%27258.4%27%20r%3D%271.18%27%20fill%3D%27white%27%20opacity%3D%270.28%27/%3E%3Ccircle%20cx%3D%27374.6%27%20cy%3D%27325.3%27%20r%3D%271.37%27%20fill%3D%27white%27%20opacity%3D%270.73%27/%3E%3Ccircle%20cx%3D%27165.7%27%20cy%3D%27168.4%27%20r%3D%270.6%27%20fill%3D%27white%27%20opacity%3D%270.63%27/%3E%3Ccircle%20cx%3D%2729.6%27%20cy%3D%2731.7%27%20r%3D%270.71%27%20fill%3D%27white%27%20opacity%3D%270.35%27/%3E%3Ccircle%20cx%3D%27144.1%27%20cy%3D%2725.7%27%20r%3D%270.5%27%20fill%3D%27white%27%20opacity%3D%270.34%27/%3E%3Ccircle%20cx%3D%2745.8%27%20cy%3D%27153.8%27%20r%3D%270.53%27%20fill%3D%27white%27%20opacity%3D%270.77%27/%3E%3C/svg%3E");
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 640px, 420px 420px;
+  background-position: top center, 0 0;
+}
+
+body.login-page .footer {
+  background: transparent;
+  border-top-color: rgba(255,255,255,.08);
+  color: rgba(255,255,255,.35);
+}
+
+body.login-page .auth-card {
+  box-shadow: 0 24px 64px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.05);
+}
+
+body.login-page .auth-footer {
+  color: rgba(255,255,255,.55);
+}
+
+body.login-page .details-toggle summary {
+  color: rgba(255,255,255,.4);
+}
+
+body.login-page .details-toggle summary:hover {
+  color: var(--purple-lt);
+}
+
+/* ===================================================
    Empty state
    =================================================== */
 

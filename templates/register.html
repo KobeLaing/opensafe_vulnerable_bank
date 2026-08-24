@@ -14,6 +14,7 @@
     {% endif %}
 
     <form method="POST" action="{{ url_for('register') }}" class="auth-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
       <div class="form-group">
         <label for="display_name">Full Name</label>
         <input type="text" id="display_name" name="display_name" required placeholder="Jane Doe" />
@@ -37,9 +38,15 @@
       <p>Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
     </div>
 
-    <div class="vuln-notice">
-      <strong>Educational Note:</strong> Passwords are stored in plaintext with no hashing. Registration input is not validated.
-    </div>
+    <details class="details-toggle">
+      <summary>Security notes</summary>
+      <div class="details-panel vuln-notice">
+        <strong>Educational Note:</strong> This app originally stored passwords in plaintext.
+        Passwords are now hashed with werkzeug's <code>generate_password_hash()</code> (PBKDF2) in
+        <code>app.py</code> before being saved — see the commented-out vulnerable code directly
+        above each fix.
+      </div>
+    </details>
   </div>
 </div>
 {% endblock %}

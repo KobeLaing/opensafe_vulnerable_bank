@@ -21,6 +21,7 @@
   </div>
 
   <form method="POST" action="{{ url_for('profile') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
     <div class="form-group">
       <label for="display_name">Display Name</label>
       <input type="text" id="display_name" name="display_name"
@@ -36,14 +37,30 @@
       <input type="text" value="{{ user['username'] }}" disabled class="input-disabled" />
       <span class="field-hint">Username cannot be changed.</span>
     </div>
-    <div class="form-group">
-      <label>Password (stored as-is)</label>
-      <input type="text" value="{{ user['password'] }}" disabled class="input-disabled" />
-      <span class="field-hint vuln-hint">
-        ⚠ Educational Note: Passwords are stored in plaintext — no hashing.
-      </span>
-    </div>
+    {% raw %}
+    <!--
+      VULNERABILITY: Sensitive data exposure — this page used to render the user's stored password
+      value directly into the page in a disabled input field:
+      <div class="form-group">
+        <label>Password (stored as-is)</label>
+        <input type="text" value="{{ user['password'] }}" disabled class="input-disabled" />
+        <span class="field-hint vuln-hint">⚠ Educational Note: Passwords are stored in plaintext — no hashing.</span>
+      </div>
+      REMEDIATED: Sensitive data exposure — removed. Passwords are now hashed (see app.py) and a
+      password value — hashed or not — has no legitimate reason to be sent to the client at all.
+    -->
+    {% endraw %}
     <button type="submit" class="btn btn-primary btn-full">Save Changes</button>
   </form>
+
+  <details class="details-toggle">
+    <summary>Security notes</summary>
+    <div class="details-panel vuln-notice">
+      <strong>Educational Note:</strong> This page used to display your stored password in a
+      disabled input field, and passwords were stored in plaintext. Passwords are now hashed with
+      werkzeug's <code>generate_password_hash()</code> and are never sent back to the browser. See
+      <code>app.py</code> and this template's source for the before/after.
+    </div>
+  </details>
 </div>
 {% endblock %}
