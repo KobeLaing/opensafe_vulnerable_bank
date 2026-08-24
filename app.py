@@ -10,22 +10,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
-# VULNERABILITY: Hardcoded secret key — session-signing key committed to source control; anyone
-# with repo access can forge session cookies (e.g. set user_id to any account) offline.
+# VULNERABILITY: hardcoded secret key allowed anyone with repo access to forge session cookies.
 # app.secret_key = 'super-insecure-hardcoded-secret'
-# REMEDIATED: Hardcoded secret key — loaded from the SECRET_KEY environment variable. A real
-# deployment MUST set this to a long random value (e.g. `python -c "import secrets; print(secrets.token_hex(32))"`)
-# and never commit it. Falling back to a per-process random key keeps the app runnable for local
-# demos without ever hardcoding a real secret, at the cost of invalidating sessions on restart.
+# REMEDIATED: secret key now loaded from the SECRET_KEY env var (set it in production!).
 app.secret_key = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
 
 DATABASE = 'bank.db'
 
-# VULNERABILITY*: Sensitive data in logs — logging module set up to write plaintext sensitive data to file and stdout
-# REMEDIATED: Sensitive data in logs — the sink itself (file + stdout) is fine for an audit trail;
-# the fix is at each call site below, which now logs only non-sensitive metadata (username, action,
-# success/failure) and never passwords, balances, memo content, or raw card data. Level dropped from
-# DEBUG to INFO since the DEBUG call that leaked the raw SQL string is also removed below.
+# VULNERABILITY*: logging was configured to capture plaintext sensitive data.
+# REMEDIATED: sink is fine (audit trail); call sites below now log metadata only, never secrets.
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s [%(levelname)s] %(message)s',
@@ -89,12 +82,8 @@ def is_valid_memo(memo):
 # ---------------------------------------------------------------------------
 # CSRF protection
 # ---------------------------------------------------------------------------
-# VULNERABILITY: Missing CSRF protection — state-changing POST routes (register, deposit, transfer,
-# profile update) accept requests with no origin or token verification, so a malicious third-party
-# page can submit them on behalf of a logged-in user's browser session.
-# REMEDIATED: Missing CSRF protection — a random per-session token is generated on first use,
-# exposed to templates via csrf_token(), embedded as a hidden field in every state-changing form,
-# and verified against the session copy on every POST before any route logic runs.
+# VULNERABILITY: state-changing POST routes had no CSRF token verification.
+# REMEDIATED: a per-session CSRF token is now required and checked on every POST.
 def get_csrf_token():
     if 'csrf_token' not in session:
         session['csrf_token'] = secrets.token_hex(32)
@@ -158,7 +147,7 @@ def init_db():
         # Seed two demo accounts so the app is immediately usable
         existing = db.execute("SELECT COUNT(*) FROM users").fetchone()[0]
         if existing == 0:
-            # VULNERABILITY: Plaintext password storage — seed accounts inserted with raw passwords
+            # VULNERABILITY: seed accounts were inserted with raw plaintext passwords.
             # db.execute(
             #     "INSERT INTO users (username, password, email, display_name, balance) "
             #     "VALUES ('kobe@opensafe.com', 'password123', 'kobe@opensafe.com', 'Kobe', 5000.00)"
@@ -167,10 +156,7 @@ def init_db():
             #     "INSERT INTO users (username, password, email, display_name, balance) "
             #     "VALUES ('kira@opensafe.com', 'letmein', 'kira@opensafe.com', 'Kira', 1250.75)"
             # )
-            # REMEDIATED: Plaintext password storage — seed accounts get hashed passwords too, via
-            # the same generate_password_hash() path used at registration; the demo credentials
-            # (password123 / letmein) still work for login since check_password_hash() verifies
-            # the raw password against the stored hash.
+            # REMEDIATED: seed accounts now get hashed passwords too (demo creds still work).
             db.execute(
                 "INSERT INTO users (username, password, email, display_name, balance) "
                 "VALUES (?, ?, ?, ?, ?)",
@@ -229,15 +215,13 @@ def register():
         display_name = request.form.get('display_name', username)
         db = get_db()
         try:
-            # VULNERABILITY: Plaintext password storage — raw password inserted into the database as-is
+            # VULNERABILITY: raw password was inserted into the database as-is.
             # db.execute(
             #     "INSERT INTO users (username, password, email, display_name, balance) "
             #     "VALUES (?, ?, ?, ?, 0.0)",
             #     (username, password, email, display_name)
             # )
-            # REMEDIATED: Plaintext password storage — password hashed with werkzeug's
-            # generate_password_hash() (PBKDF2-SHA256 with a per-password salt) before storage;
-            # the raw password is never written to the database.
+            # REMEDIATED: password is now hashed (generate_password_hash) before storage.
             db.execute(
                 "INSERT INTO users (username, password, email, display_name, balance) "
                 "VALUES (?, ?, ?, ?, 0.0)",
@@ -257,16 +241,13 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        # VULNERABILITY*: Sensitive data in logs — username and raw plaintext password written to log on every attempt
+        # VULNERABILITY*: raw plaintext password was logged on every attempt.
         # logger.info(f"LOGIN ATTEMPT | username={username} | password={password}")
-        # REMEDIATED: Sensitive data in logs — only non-sensitive metadata (username, action) is
-        # logged; the password never reaches any log sink.
+        # REMEDIATED: only username is logged now.
         logger.info(f"LOGIN ATTEMPT | username={username}")
 
-        # VULNERABILITY*: No brute-force protection — no rate limiting, lockout counter, delay, or CAPTCHA; every attempt is processed unconditionally
-        # REMEDIATED: No brute-force protection — a per-username failed-attempt counter (see
-        # _is_locked_out / _record_failed_login above) rejects further attempts once a username has
-        # LOGIN_MAX_ATTEMPTS failures within LOGIN_LOCKOUT_WINDOW_SECONDS, without touching the database.
+        # VULNERABILITY*: no brute-force protection — every attempt was processed unconditionally.
+        # REMEDIATED: a per-username failed-attempt counter has been added (see _is_locked_out above).
         if _is_locked_out(username):
             error = 'Too many failed login attempts for this account. Please try again in a few minutes.'
             logger.info(f"LOGIN BLOCKED | username={username} | reason=lockout")
@@ -274,7 +255,7 @@ def login():
 
         db = get_db()
 
-        # VULNERABILITY*: SQL Injection — query built by direct string concatenation; no parameterized queries or prepared statements
+        # VULNERABILITY*: SQL injection — query was built by direct string concatenation.
         # query = (
         #     "SELECT * FROM users WHERE username = '"
         #     + username
@@ -284,21 +265,17 @@ def login():
         # )
         # logger.debug(f"Executing SQL: {query}")
         # user = db.execute(query).fetchone()
-        # REMEDIATED: SQL Injection — parameterized query with a placeholder; user input is passed
-        # as a bound parameter and is never concatenated into the SQL string, so it cannot alter the
-        # query's structure. The password is no longer part of the query at all (see below).
+        # REMEDIATED: query now uses a parameterized placeholder instead of concatenation.
         user = db.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
 
-        # REMEDIATED: Plaintext password storage — the password comparison that used to happen
-        # inside the SQL query is replaced with check_password_hash(), which verifies the submitted
-        # password against the stored PBKDF2 hash using a constant-time comparison.
+        # REMEDIATED: password check now uses check_password_hash() instead of a plaintext comparison.
         if user and check_password_hash(user['password'], password):
             session['user_id']  = user['id']
             session['username'] = user['username']
             _clear_failed_logins(username)
-            # VULNERABILITY*: Sensitive data in logs — balance logged on successful login
+            # VULNERABILITY*: password and balance were logged on successful login.
             # logger.info(f"LOGIN SUCCESS | username={username} | password={password} | balance={user['balance']}")
-            # REMEDIATED: Sensitive data in logs — logs the outcome only, never the password or balance.
+            # REMEDIATED: only the outcome is logged now.
             logger.info(f"LOGIN SUCCESS | username={username}")
             return redirect(url_for('dashboard'))
         else:
@@ -347,23 +324,15 @@ def deposit():
         try:
             db          = get_db()
             amount      = float(request.form['amount'])
-            # VULNERABILITY: Raw card data collected without purpose or PCI-compliant handling — the
-            # full card number and CVV are accepted from the client even though nothing in this app
-            # actually processes payments with them; collecting this data at all creates PCI-DSS
-            # scope and breach exposure for zero functional benefit.
+            # VULNERABILITY: full card number and CVV were collected with no PCI-compliant handling.
             # card_number = request.form.get('card_number', '')
             # card_expiry = request.form.get('card_expiry', '')
             # card_cvv    = request.form.get('card_cvv', '')
-            # REMEDIATED: Raw card data collection — the server no longer accepts a full PAN or CVV
-            # at all (data minimization). A real deployment would capture card details client-side
-            # via a PCI-compliant processor's hosted fields/tokenization (e.g. Stripe Elements) so
-            # raw card data never touches this app's servers or logs in the first place.
+            # REMEDIATED: server no longer accepts raw card data at all (use a PCI processor client-side).
             memo = request.form.get('memo', '')
 
-            # VULNERABILITY*: Stored XSS — memo written to the database with no sanitization or escaping
-            # REMEDIATED: Stored XSS — Jinja2 autoescaping (templates/transactions.html,
-            # templates/dashboard.html) is the real fix; this length/character check is a
-            # defense-in-depth layer that rejects obviously hostile input before it's ever stored.
+            # VULNERABILITY*: memo was written to the database with no sanitization (stored XSS).
+            # REMEDIATED: Jinja2 autoescaping is the real fix; this check is defense in depth.
             if not is_valid_memo(memo):
                 error = 'Memo contains invalid characters or is too long (max %d).' % MEMO_MAX_LENGTH
             else:
@@ -400,13 +369,12 @@ def transfer():
             sender    = db.execute("SELECT * FROM users WHERE id = ?", (session['user_id'],)).fetchone()
             recipient = db.execute("SELECT * FROM users WHERE username = ?", (recipient_username,)).fetchone()
 
-            # VULNERABILITY*: Sensitive data in logs — sender balance, recipient, amount, and memo logged in plaintext
+            # VULNERABILITY*: sender balance, amount, and memo were logged in plaintext.
             # logger.info(
             #     f"TRANSFER | from={session['username']} | from_balance={sender['balance']} "
             #     f"| to={recipient_username} | amount={amount} | memo={memo}"
             # )
-            # REMEDIATED: Sensitive data in logs — logs who initiated a transfer to whom, never the
-            # sender's balance or the memo content.
+            # REMEDIATED: only who transferred to whom is logged now.
             logger.info(f"TRANSFER ATTEMPT | from={session['username']} | to={recipient_username}")
 
             if not recipient:
@@ -417,7 +385,7 @@ def transfer():
                 error = f'Insufficient funds. Your balance is ${sender["balance"]:,.2f}.'
             elif amount <= 0:
                 error = 'Transfer amount must be positive.'
-            # REMEDIATED: Stored XSS (defense in depth) — reject invalid memo content before it's stored.
+            # REMEDIATED: invalid memo content is rejected before it's stored (defense in depth).
             elif not is_valid_memo(memo):
                 error = 'Memo contains invalid characters or is too long (max %d).' % MEMO_MAX_LENGTH
             else:
@@ -430,10 +398,8 @@ def transfer():
                     "UPDATE users SET balance = balance + ? WHERE id = ?",
                     (amount, recipient['id'])
                 )
-                # VULNERABILITY*: Stored XSS — memo written to the database with no sanitization or escaping
-                # REMEDIATED: Stored XSS — Jinja2 autoescaping on render is the real fix (see
-                # templates/transactions.html, templates/dashboard.html); the is_valid_memo() check
-                # above is the defense-in-depth layer for this route.
+                # VULNERABILITY*: memo was written to the database with no sanitization (stored XSS).
+                # REMEDIATED: Jinja2 autoescaping on render is the real fix; is_valid_memo() above is defense in depth.
                 db.execute(
                     "INSERT INTO transactions (user_id, type, amount, memo, timestamp) "
                     "VALUES (?, 'transfer_out', ?, ?, ?)",
@@ -496,11 +462,8 @@ def profile():
 
 if __name__ == '__main__':
     init_db()
-    # VULNERABILITY: Debug mode enabled — Werkzeug's interactive debugger exposes a Python shell
-    # (arbitrary code execution) on any unhandled exception to whoever can reach the app, and leaks
-    # full stack traces and source snippets in error pages.
+    # VULNERABILITY: debug mode exposed Werkzeug's interactive debugger (RCE) on any exception.
     # app.run(debug=True, host='0.0.0.0', port=5000)
-    # REMEDIATED: Debug mode enabled — defaults to off; only enabled by explicitly setting
-    # FLASK_DEBUG=1 in the environment for local development, never on by default.
+    # REMEDIATED: debug mode now defaults to off; enable via FLASK_DEBUG=1 for local dev only.
     debug_mode = os.environ.get('FLASK_DEBUG', '0') == '1'
     app.run(debug=debug_mode, host='0.0.0.0', port=5000)
